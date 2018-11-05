@@ -25,7 +25,7 @@ namespace DataSpider.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("数据库链接串")]
+        [global::System.Configuration.DefaultSettingValueAttribute("数据库连接串")]
         public string strConnetion {
             get {
                 return ((string)(this["strConnetion"]));

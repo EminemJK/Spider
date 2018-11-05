@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="strConnetion" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">数据库链接串</Value>
+      <Value Profile="(Default)">数据库连接串</Value>
     </Setting>
     <Setting Name="dingTalkToken" Type="System.String" Scope="Application">
       <Value Profile="(Default)">钉钉机器人的token</Value>
