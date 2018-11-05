@@ -131,7 +131,6 @@ namespace DataSpider.BLL
                 {
                     ReportInfo("近期暂无相关数据...");
                 }
-                InformWarning();
             }
             catch (Exception ex)
             {
@@ -229,30 +228,8 @@ namespace DataSpider.BLL
             }
         }
 
-        /// <summary>
-        /// 报警
-        /// </summary>
-        protected virtual void InformWarning()
-        {
-            try
-            {
-                if (TaskInfo.RunMessage.ErrorCount % 3 == 0)
-                {
-                    if (Properties.Settings.Default.warningOn && !string.IsNullOrWhiteSpace(Properties.Settings.Default.warningPhone))
-                    {
-                        DingTalk.Send_Warning("管理员，" + Description + "又㕛叒叕改版啦，快去看看。");
-                    }
-                }
-            }
-            catch
-            {
-                Log.Error("InformWarning 报警方法出错。");
-            }
-
-        }
-
         #region Func
-
+        
         public HtmlNode GetHtmlDoc(HtmlWeb htmlWeb, string url)
         {
             try

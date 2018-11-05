@@ -93,7 +93,6 @@
     <Compile Include="Models\Context.cs" />
     <Compile Include="Models\DingTalkModel\DTBaseModel.cs" />
     <Compile Include="Models\DingTalkModel\DTMarkdownModel.cs" />
-    <Compile Include="Models\DingTalkModel\DTTextModel.cs" />
     <Compile Include="Models\ERunCycle.cs" />
     <Compile Include="Models\ERunState.cs" />
     <Compile Include="Models\SpiderConfig.cs" />
