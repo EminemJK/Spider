@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("任务区");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("运行中");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("挂起中");
@@ -37,8 +38,9 @@
             treeNode2,
             treeNode3,
             treeNode4});
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripSplitBtnSys = new System.Windows.Forms.ToolStripSplitButton();
+            this.btnSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tbNewTask = new System.Windows.Forms.ToolStripMenuItem();
             this.taskTreeView = new System.Windows.Forms.TreeView();
@@ -58,8 +60,7 @@
             this.contextMenuStripNotify = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.NotifyExit = new System.Windows.Forms.ToolStripMenuItem();
             this.timerAuto = new System.Windows.Forms.Timer(this.components);
-            this.btnSetting = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSplitBtnSys = new System.Windows.Forms.ToolStripSplitButton();
+            this.btnRemoveError = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.taskDataView)).BeginInit();
             this.contextMenuStripTaskGridView.SuspendLayout();
@@ -78,6 +79,23 @@
             this.toolStrip1.Size = new System.Drawing.Size(969, 25);
             this.toolStrip1.TabIndex = 0;
             // 
+            // toolStripSplitBtnSys
+            // 
+            this.toolStripSplitBtnSys.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnSetting});
+            this.toolStripSplitBtnSys.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitBtnSys.Image")));
+            this.toolStripSplitBtnSys.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitBtnSys.Name = "toolStripSplitBtnSys";
+            this.toolStripSplitBtnSys.Size = new System.Drawing.Size(64, 22);
+            this.toolStripSplitBtnSys.Text = "工具";
+            this.toolStripSplitBtnSys.ToolTipText = "设置";
+            // 
+            // btnSetting
+            // 
+            this.btnSetting.Name = "btnSetting";
+            this.btnSetting.Size = new System.Drawing.Size(100, 22);
+            this.btnSetting.Text = "设置";
+            // 
             // toolStripDropDownButton1
             // 
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -91,7 +109,7 @@
             // tbNewTask
             // 
             this.tbNewTask.Name = "tbNewTask";
-            this.tbNewTask.Size = new System.Drawing.Size(180, 22);
+            this.tbNewTask.Size = new System.Drawing.Size(112, 22);
             this.tbNewTask.Text = "新任务";
             this.tbNewTask.Click += new System.EventHandler(this.tbNewTask_Click);
             // 
@@ -141,42 +159,43 @@
             this.btnConfig,
             this.btnTaskTurnOn,
             this.btnTaskOff,
-            this.btnTaskDelete});
+            this.btnTaskDelete,
+            this.btnRemoveError});
             this.contextMenuStripTaskGridView.Name = "contextMenuStripTaskGridView";
-            this.contextMenuStripTaskGridView.Size = new System.Drawing.Size(125, 114);
+            this.contextMenuStripTaskGridView.Size = new System.Drawing.Size(181, 158);
             // 
             // btnRun
             // 
             this.btnRun.Name = "btnRun";
-            this.btnRun.Size = new System.Drawing.Size(124, 22);
+            this.btnRun.Size = new System.Drawing.Size(180, 22);
             this.btnRun.Text = "立即运行";
             this.btnRun.Click += new System.EventHandler(this.btnRun_Click);
             // 
             // btnConfig
             // 
             this.btnConfig.Name = "btnConfig";
-            this.btnConfig.Size = new System.Drawing.Size(124, 22);
+            this.btnConfig.Size = new System.Drawing.Size(180, 22);
             this.btnConfig.Text = "查看配置";
             this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
             // 
             // btnTaskTurnOn
             // 
             this.btnTaskTurnOn.Name = "btnTaskTurnOn";
-            this.btnTaskTurnOn.Size = new System.Drawing.Size(124, 22);
+            this.btnTaskTurnOn.Size = new System.Drawing.Size(180, 22);
             this.btnTaskTurnOn.Text = "启用";
             this.btnTaskTurnOn.Click += new System.EventHandler(this.btnTaskTurnOn_Click);
             // 
             // btnTaskOff
             // 
             this.btnTaskOff.Name = "btnTaskOff";
-            this.btnTaskOff.Size = new System.Drawing.Size(124, 22);
+            this.btnTaskOff.Size = new System.Drawing.Size(180, 22);
             this.btnTaskOff.Text = "禁用";
             this.btnTaskOff.Click += new System.EventHandler(this.btnTaskOff_Click);
             // 
             // btnTaskDelete
             // 
             this.btnTaskDelete.Name = "btnTaskDelete";
-            this.btnTaskDelete.Size = new System.Drawing.Size(124, 22);
+            this.btnTaskDelete.Size = new System.Drawing.Size(180, 22);
             this.btnTaskDelete.Text = "删除";
             this.btnTaskDelete.Click += new System.EventHandler(this.btnTaskDelete_Click);
             // 
@@ -260,22 +279,12 @@
             this.timerAuto.Interval = 5000;
             this.timerAuto.Tick += new System.EventHandler(this.timerAuto_Tick);
             // 
-            // btnSetting
+            // btnRemoveError
             // 
-            this.btnSetting.Name = "btnSetting";
-            this.btnSetting.Size = new System.Drawing.Size(180, 22);
-            this.btnSetting.Text = "设置";
-            // 
-            // toolStripSplitBtnSys
-            // 
-            this.toolStripSplitBtnSys.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnSetting});
-            this.toolStripSplitBtnSys.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitBtnSys.Image")));
-            this.toolStripSplitBtnSys.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripSplitBtnSys.Name = "toolStripSplitBtnSys";
-            this.toolStripSplitBtnSys.Size = new System.Drawing.Size(64, 22);
-            this.toolStripSplitBtnSys.Text = "工具";
-            this.toolStripSplitBtnSys.ToolTipText = "设置";
+            this.btnRemoveError.Name = "btnRemoveError";
+            this.btnRemoveError.Size = new System.Drawing.Size(180, 22);
+            this.btnRemoveError.Text = "报警移除";
+            this.btnRemoveError.Click += new System.EventHandler(this.btnRemoveError_Click);
             // 
             // mainForm
             // 
@@ -330,6 +339,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnConfig;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitBtnSys;
         private System.Windows.Forms.ToolStripMenuItem btnSetting;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveError;
     }
 }
 

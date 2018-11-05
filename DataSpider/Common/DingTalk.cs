@@ -31,6 +31,18 @@ namespace DataSpider.Common
             SendMsg(msg);
         }
 
+        public static void Send_Warning(string info)
+        {
+            var str = string.Format("报警通知：\n\n" + info + "\n\n" + DateTime.Now.ToString("yyyy年MM月dd日"));
+            var msg = new DTTextModel(str);
+            msg.at = new DTAtModel()
+            {
+                atMobiles = new List<string> { Properties.Settings.Default.warningPhone },
+                isAtAll = false
+            };
+            SendMsg(msg);
+        }
+
         public static async void SendMsg(DTBaseModel context)
         {
             if (!string.IsNullOrEmpty(Properties.Settings.Default.dingTalkToken))

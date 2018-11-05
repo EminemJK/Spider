@@ -304,6 +304,17 @@ namespace DataSpider
         {
             taskDataView_CellContentDoubleClick(null, null);
         }
-        #endregion 
+        #endregion
+
+        private void btnRemoveError_Click(object sender, EventArgs e)
+        {
+            if (taskDataView.SelectedCells.Count != 0)
+            {
+                int taskid = Convert.ToInt16(taskDataView.CurrentRow.Cells[0].Value);
+                var task = TaskMngBLL.GetInstance().GetTask(taskid);
+                task.RunMessage.ErrorCount = 0;
+                RefreshDataGridView(TaskMngBLL.GetInstance().GetTask(taskid));
+            }
+        }
     }
 }
