@@ -19,6 +19,25 @@ namespace DataSpider.DAL
                                                       BEGIN
 	                                                    SELECT 0
                                                       END";
+        /// <summary>
+        /// 查询旧数据
+        /// </summary>
+        public const string Select_DeclareData = @"Select * from T_DeclareData WHERE CipherText=@CipherText";
+
+        /// <summary>
+        /// 查询旧内容
+        /// </summary>
+        public const string Select_Html = @"select HtmlContext from T_ContextData where DeclareID=@DeclareID";
+
+        /// <summary>
+        /// 更新
+        /// </summary>
+        public const string Update_DeclareData = @"update T_DeclareData set Url=@url where id=@id";
+
+        /// <summary>
+        /// 更新内容
+        /// </summary>
+        public const string Update_Html = @"update T_ContextData set HtmlContext=@HtmlContext where DeclareID=@DeclareID";
 
         /// <summary>
         /// 保存爬取详细内容

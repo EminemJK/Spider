@@ -91,6 +91,7 @@
       <DependentUpon>dateSetForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Context.cs" />
+    <Compile Include="Models\ContextCollection.cs" />
     <Compile Include="Models\DingTalkModel\DTBaseModel.cs" />
     <Compile Include="Models\DingTalkModel\DTMarkdownModel.cs" />
     <Compile Include="Models\ERunCycle.cs" />

@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace DataSpider.DAL
 {
     public static class DBOHelper
-    {  
+    {
         /// <summary>
         /// 保存爬取内容
         /// </summary>
         /// <param name="dataList"></param>
-        public static List<Context> SaveData(List<Context> dataList)
+        public static ContextCollection SaveData(List<Context> dataList)
         {
-            List<Context> contexts = new List<Context>();
+            ContextCollection context = new ContextCollection();
             using (var conn = SqlMapperUtil.OpenConnection())
             {
                 foreach (var data in dataList)
@@ -26,11 +26,29 @@ namespace DataSpider.DAL
                     {
                         data.Id = id;
                         conn.Execute(SpiderSQL.Insert_Context, new { DeclareID = id, HtmlContext = data.HtmlContext });
-                        contexts.Add(data);
+                        context.NewContexts.Add(data);
+                    }
+                    else
+                    {
+                        var oldModel = conn.QuerySingle<Context>(SpiderSQL.Select_DeclareData, new { CipherText = data.CipherText });
+                        if (oldModel != null && oldModel.Url != data.Url)
+                        {
+                            data.Id = oldModel.Id;
+                            id = conn.Execute(SpiderSQL.Update_DeclareData, new { url = data.Url, id = oldModel.Id });
+                            if (id > 0)
+                            {
+                                var oldHtml = conn.QuerySingle<string>(SpiderSQL.Select_Html, new { DeclareID = oldModel.Id });
+                                if (string.IsNullOrEmpty(oldHtml) || oldHtml != data.HtmlContext)
+                                {
+                                    conn.Execute(SpiderSQL.Update_Html, new { HtmlContext = data.HtmlContext, DeclareID = oldModel.Id });
+                                }
+                                context.UpdateContexts.Add(data);
+                            }
+                        }
                     }
                 }
             }
-            return contexts;
+            return context;
         }
 
 

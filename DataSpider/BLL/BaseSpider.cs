@@ -218,13 +218,24 @@ namespace DataSpider.BLL
         /// </summary>
         protected virtual void SaveToDB()
         {
-            var newContextList = DBOHelper.SaveData(ResultDataDic.Values.ToList());
-            if (newContextList.Count > 0)
+            var contextList = DBOHelper.SaveData(ResultDataDic.Values.ToList());
+            if (contextList.IsValid)
             {
-                ReportInfo($"新数据有【{ newContextList.Count }】条，钉钉通知已发送...");
-                //发送钉钉通知群里的小伙伴
-                string title = string.Format("来自【{0}】最新发布的{1}", Description, TaskInfo.Remark.Replace("，", ",").Split(',')[0]);
-                DingTalk.Send_Morkdown(title, newContextList);
+                if (contextList.NewContexts.Count > 0)
+                {
+                    ReportInfo($"新数据有【{ contextList.NewContexts.Count }】条，钉钉通知已发送...");
+                    //发送钉钉通知群里的小伙伴
+                    string title = string.Format("来自【{0}】最新发布的{1}", Description, TaskInfo.Remark.Replace("，", ",").Split(',')[0]);
+                    DingTalk.Send_Morkdown(title, contextList.NewContexts);
+                }
+
+                if (contextList.UpdateContexts.Count > 0)
+                {
+                    ReportInfo($"旧数据有【{ contextList.UpdateContexts.Count }】条更新，钉钉通知已发送...");
+                    //发送钉钉通知群里的小伙伴
+                    string title = string.Format("注意咯，【{0}】以下信息有更新", Description);
+                    DingTalk.Send_Morkdown(title, contextList.UpdateContexts);
+                }
             }
         }
 
