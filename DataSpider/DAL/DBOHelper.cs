@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Banana.Uow;
+using Dapper;
 using DataSpider.Models;
 using System;
 using System.Collections.Generic;
@@ -17,34 +18,31 @@ namespace DataSpider.DAL
         public static ContextCollection SaveData(List<Context> dataList)
         {
             ContextCollection context = new ContextCollection();
+
+            var contextRepo = new Repository<Context>();
+            var contextDataRepo = new Repository<ContextData>();
             using (var conn = SqlMapperUtil.OpenConnection())
             {
                 foreach (var data in dataList)
                 {
-                    int id = conn.Query<int>(SpiderSQL.Insert_DeclareData, data).FirstOrDefault();
-                    if (id > 0)
+                    var oldModel = contextRepo.QueryList("CipherText=@CipherText", new { CipherText = data.CipherText }).FirstOrDefault();
+                    if (oldModel == null || oldModel.Id == 0)
                     {
-                        data.Id = id;
-                        conn.Execute(SpiderSQL.Insert_Context, new { DeclareID = id, HtmlContext = data.HtmlContext });
+                        data.Id = (int)contextRepo.Insert(data);
+                        contextDataRepo.Insert(new ContextData() { DeclareID = data.Id, HtmlContext = data.HtmlContext });
                         context.NewContexts.Add(data);
                     }
-                    else
+                    else if (oldModel.Url != data.Url)
                     {
-                        var oldModel = conn.QuerySingle<Context>(SpiderSQL.Select_DeclareData, new { CipherText = data.CipherText });
-                        if (oldModel != null && oldModel.Url != data.Url)
+                        data.Id = oldModel.Id;
+                        contextRepo.Update(data);
+                        var oldHtml = contextDataRepo.QueryList("DeclareID=@DeclareID", new { DeclareID = data.Id }).FirstOrDefault();
+                        if (oldHtml != null && (string.IsNullOrEmpty(oldHtml.HtmlContext) || oldHtml.HtmlContext != data.HtmlContext))
                         {
-                            data.Id = oldModel.Id;
-                            id = conn.Execute(SpiderSQL.Update_DeclareData, new { url = data.Url, id = oldModel.Id });
-                            if (id > 0)
-                            {
-                                var oldHtml = conn.QuerySingle<string>(SpiderSQL.Select_Html, new { DeclareID = oldModel.Id });
-                                if (string.IsNullOrEmpty(oldHtml) || oldHtml != data.HtmlContext)
-                                {
-                                    conn.Execute(SpiderSQL.Update_Html, new { HtmlContext = data.HtmlContext, DeclareID = oldModel.Id });
-                                }
-                                context.UpdateContexts.Add(data);
-                            }
+                            oldHtml.HtmlContext = data.HtmlContext;
+                            contextDataRepo.Update(oldHtml);
                         }
+                        context.UpdateContexts.Add(data);
                     }
                 }
             }
@@ -58,19 +56,24 @@ namespace DataSpider.DAL
         public static Dictionary<int,TaskInfo> GetTaskInfos()
         {
             Dictionary<int, TaskInfo> taskInfos = new Dictionary<int, TaskInfo>();
-            using (var conn = SqlMapperUtil.OpenConnection())
+            var taskRepo = new Repository<TaskInfo>();
+            var spiderRepo = new Repository<SpiderConfig>();
+
+            var taskAll = taskRepo.QueryList();
+            var spiderAll = spiderRepo.QueryList();
+
+            foreach (var task in taskAll)
             {
-                var infos = conn.Query<TaskInfo, SpiderConfig, TaskInfo>(SpiderSQL.Select_TaskList, (t, s) =>
-                   {
-                       t.SpiderConfig = s;
-                       if (t.Enabled == 0)
-                           t.RunState = ERunState.Stop;
-                       else
-                           t.RunState = ERunState.HangUp;
-                       taskInfos.Add(t.Id, t);
-                       return t;
-                   }, splitOn: "sp");
+                if (task.Enabled == 0)
+                    task.RunState = ERunState.Stop;
+                else
+                    task.RunState = ERunState.HangUp;
+                var sp = spiderAll.Find(s => s.TaskId == task.Id);
+                task.SpiderConfig = sp;
+                taskInfos.Add(task.Id, task);
+                spiderAll.Remove(sp);
             }
+
             return taskInfos;
         }
 
@@ -78,27 +81,38 @@ namespace DataSpider.DAL
         /// 保存新任务
         /// </summary> 
         /// <returns>任务id</returns>
-        public static int SaveNewTask(TaskInfo taskInfo)
+        public static bool SaveNewTask(TaskInfo taskInfo)
         {
-            int taskId = SqlMapperUtil.QuerySingle<int>(SpiderSQL.Insert_NewTask, taskInfo);
-            if (taskId > 0)
+            using (var uow = new UnitOfWork())
             {
-                taskInfo.SpiderConfig.TaskId = taskId;
-                int configId = SqlMapperUtil.QuerySingle<int>(SpiderSQL.Insert_NewSpiderConfig, taskInfo.SpiderConfig);
-                taskInfo.SpiderConfig.Id = configId;
+                var taskRepo = uow.Repository<TaskInfo>();
+                taskInfo.Id = (int)taskRepo.Insert(taskInfo);
+                if (taskInfo.Id > 0)
+                {
+                    taskInfo.SpiderConfig.TaskId = taskInfo.Id;
+                    var spiderRepo = uow.Repository<SpiderConfig>();
+                    taskInfo.SpiderConfig.Id = (int)spiderRepo.Insert(taskInfo.SpiderConfig);
+                    uow.Commit();
+                    return true;
+                }
+                else
+                {
+                    uow.Rollback();
+                    return false;
+                }
             }
-            return taskId;
         }
         
         /// <summary>
         /// 更新任务
         /// </summary> 
-        public static int UpdateTask(TaskInfo taskInfo)
+        public static bool UpdateTask(TaskInfo taskInfo)
         {
-            int res = SqlMapperUtil.InsertUpdateOrDeleteSql(SpiderSQL.Update_TaskInfo, taskInfo);
-            if (res > 0)
+            bool res = UpdateTaskState(taskInfo);
+            if (res)
             {
-                SqlMapperUtil.InsertUpdateOrDeleteSql(SpiderSQL.Update_SpiderConfig, taskInfo.SpiderConfig);
+                var spiderRepo = new Repository<SpiderConfig>();
+                spiderRepo.Update(taskInfo.SpiderConfig);
             }
             return res;
         }
@@ -108,10 +122,10 @@ namespace DataSpider.DAL
         /// </summary>
         /// <param name="taskInfo"></param>
         /// <returns></returns>
-        public static int UpdateTaskState(TaskInfo taskInfo)
+        public static bool UpdateTaskState(TaskInfo taskInfo)
         {
-            int res = SqlMapperUtil.InsertUpdateOrDeleteSql(SpiderSQL.Update_TaskInfoState, taskInfo); 
-            return res;
+            var taskRepo = new Repository<TaskInfo>();
+            return taskRepo.Update(taskInfo);
         }
 
         /// <summary>
@@ -119,11 +133,14 @@ namespace DataSpider.DAL
         /// </summary>
         /// <param name="taskInfo"></param>
         /// <returns></returns>
-        public static int DeleteTask(int taskId)
+        public static bool DeleteTask(int taskId)
         {
-            int res = SqlMapperUtil.InsertUpdateOrDeleteSql(SpiderSQL.Delete_TaskInfo, new { id = taskId });
-            SqlMapperUtil.InsertUpdateOrDeleteSql(SpiderSQL.Delete_SpiderConfig, new { TaskId = taskId });
-            return res;
+            var taskRepo = new Repository<TaskInfo>();
+            bool b = taskRepo.Delete(new TaskInfo() { Id = taskId });
+
+            var spiderRepo = new Repository<SpiderConfig>();
+            spiderRepo.Delete("TaskId =@TaskId", new { TaskId = taskId });
+            return b;
         }
     }
 }

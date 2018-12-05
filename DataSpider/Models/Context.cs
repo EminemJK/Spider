@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper.Contrib.Extensions;
+using Banana.Uow.Models;
 
 namespace DataSpider.Models
 {
-    public class Context
+    [Table("T_DeclareData")]
+    public class Context : BaseModel
     {
+        [Key]
         public int Id { get; set; }
 
         private string title = "";
@@ -28,10 +32,15 @@ namespace DataSpider.Models
         }
 
         public string KeyWord { get; set; }
+
+        [Computed]
+        [Write(false)]
         public string HtmlContext { get; set; } = "";
 
         public string WebSite { get; set; }
 
+        [Computed]
+        [Write(false)]
         public DateTime PublishDateTime
         {
             get => string.IsNullOrEmpty(PublishDate) ? DateTime.MinValue : Convert.ToDateTime(PublishDate);

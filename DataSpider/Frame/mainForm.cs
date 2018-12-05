@@ -61,9 +61,11 @@ namespace DataSpider
         /// </summary>
         private void Init()
         {
-            taskDataView.MultiSelect = false;
-            taskDataView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            //数据库
+            Banana.Uow.ConnectionBuilder.ConfigRegist(Properties.Settings.Default.strConnetion, Banana.Uow.Models.DBType.SqlServer);
 
+            taskDataView.MultiSelect = false;
+            taskDataView.SelectionMode = DataGridViewSelectionMode.FullRowSelect; 
             taskDataView.Columns.Clear();
             taskDataView.Columns.Add("任务ID", "任务ID");
             taskDataView.Columns.Add("网站", "网站");
@@ -174,8 +176,8 @@ namespace DataSpider
             if (taskForm.ShowDialog() == DialogResult.OK)
             {
                 var newTask = taskForm.taskInfo;
-                int taskId = TaskMngBLL.GetInstance().AddNewTask(newTask);
-                if (taskId == 0)
+                bool b = TaskMngBLL.GetInstance().AddNewTask(newTask);
+                if (!b)
                 {
                     MessageBox.Show("保存任务失败了");
                     return;
@@ -199,7 +201,7 @@ namespace DataSpider
                 taskForm.Set(taskInfo);
                 if (taskForm.ShowDialog() == DialogResult.OK)
                 {
-                    if (TaskMngBLL.GetInstance().UpdateTask(taskForm.taskInfo) == 0)
+                    if (!TaskMngBLL.GetInstance().UpdateTask(taskForm.taskInfo))
                     {
                         MessageBox.Show("保存任务失败了");
                         return;

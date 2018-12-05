@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Banana.Uow.Models;
+using Dapper.Contrib.Extensions;
 
 namespace DataSpider.Models
 {
-    [Serializable]
-    public class SpiderConfig
-    { 
+    [Table("T_SpiderConfig")]
+    public class SpiderConfig : BaseModel
+    {
+        [Key]
         public int Id { get; set; }
 
         /// <summary>

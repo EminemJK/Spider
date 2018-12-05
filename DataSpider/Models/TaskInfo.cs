@@ -4,15 +4,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
+using Banana.Uow.Models;
+using Dapper.Contrib.Extensions;
 
 namespace DataSpider.Models
 {
-    public class TaskInfo
+    [Table("T_TaskList")]
+    public class TaskInfo : BaseModel
     {
         /// <summary>
         /// 任务ID
         /// </summary>
+        [Key]
         public int Id { get; set; }
 
         /// <summary>
@@ -25,6 +29,8 @@ namespace DataSpider.Models
         /// </summary>
         public ERunCycle Type { get; set; }
 
+        [Computed]
+        [Write(false)]
         public ERunState RunState { get; set; } = ERunState.HangUp;
 
         /// <summary>
@@ -67,6 +73,8 @@ namespace DataSpider.Models
         /// </summary>
         public string StartDate { get; set; }
 
+        [Computed]
+        [Write(false)]
         public DateTime DTStartDate => Convert.ToDateTime(StartDate);
 
         /// <summary>
@@ -74,6 +82,8 @@ namespace DataSpider.Models
         /// </summary>
         public string EndDate { get; set; }
 
+        [Computed]
+        [Write(false)]
         public DateTime DTEndDate => Convert.ToDateTime(EndDate);
 
         /// <summary>
@@ -94,13 +104,19 @@ namespace DataSpider.Models
         /// <summary>
         /// 爬虫配置
         /// </summary>
+        [Computed]
+        [Write(false)]
         public SpiderConfig SpiderConfig { get; set; }
 
         /// <summary>
         /// 运行消息
         /// </summary>
+        [Computed]
+        [Write(false)]
         public RunMessage RunMessage { get; set; }
 
+        [Computed]
+        [Write(false)]
         public SpiderMan SpiderMan { get; set; }
 
         public TaskInfo()

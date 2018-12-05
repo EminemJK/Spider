@@ -43,15 +43,14 @@ namespace DataSpider.BLL
         /// <summary>
         /// 保存新的任务
         /// </summary> 
-        public int AddNewTask(TaskInfo taskInfo)
+        public bool AddNewTask(TaskInfo taskInfo)
         {
-            int taskId = DBOHelper.SaveNewTask(taskInfo);
-            if (taskId > 0)
+            bool b = DBOHelper.SaveNewTask(taskInfo);
+            if (b)
             {
-                taskInfo.Id = taskId;
-                taskInfos.Add(taskId, taskInfo);
+                taskInfos.Add(taskInfo.Id, taskInfo);
             }
-            return taskId;
+            return b;
         }
 
         /// <summary>
@@ -67,10 +66,10 @@ namespace DataSpider.BLL
         /// <summary>
         /// 更新任务
         /// </summary>
-        public int UpdateTask(TaskInfo taskInfo)
+        public bool UpdateTask(TaskInfo taskInfo)
         {
-            int res = DBOHelper.UpdateTask(taskInfo);
-            if (res > 0)
+            bool res = DBOHelper.UpdateTask(taskInfo);
+            if (res)
             {
                 if (!taskInfos.ContainsKey(taskInfo.Id))
                     taskInfos.Add(taskInfo.Id, taskInfo);
