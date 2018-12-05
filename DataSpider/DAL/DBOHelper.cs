@@ -21,29 +21,26 @@ namespace DataSpider.DAL
 
             var contextRepo = new Repository<Context>();
             var contextDataRepo = new Repository<ContextData>();
-            using (var conn = SqlMapperUtil.OpenConnection())
+            foreach (var data in dataList)
             {
-                foreach (var data in dataList)
+                var oldModel = contextRepo.QueryList("CipherText=@CipherText", new { CipherText = data.CipherText }).FirstOrDefault();
+                if (oldModel == null || oldModel.Id == 0)
                 {
-                    var oldModel = contextRepo.QueryList("CipherText=@CipherText", new { CipherText = data.CipherText }).FirstOrDefault();
-                    if (oldModel == null || oldModel.Id == 0)
+                    data.Id = (int)contextRepo.Insert(data);
+                    contextDataRepo.Insert(new ContextData() { DeclareID = data.Id, HtmlContext = data.HtmlContext });
+                    context.NewContexts.Add(data);
+                }
+                else if (oldModel.Url != data.Url)
+                {
+                    data.Id = oldModel.Id;
+                    contextRepo.Update(data);
+                    var oldHtml = contextDataRepo.QueryList("DeclareID=@DeclareID", new { DeclareID = data.Id }).FirstOrDefault();
+                    if (oldHtml != null && (string.IsNullOrEmpty(oldHtml.HtmlContext) || oldHtml.HtmlContext != data.HtmlContext))
                     {
-                        data.Id = (int)contextRepo.Insert(data);
-                        contextDataRepo.Insert(new ContextData() { DeclareID = data.Id, HtmlContext = data.HtmlContext });
-                        context.NewContexts.Add(data);
+                        oldHtml.HtmlContext = data.HtmlContext;
+                        contextDataRepo.Update(oldHtml);
                     }
-                    else if (oldModel.Url != data.Url)
-                    {
-                        data.Id = oldModel.Id;
-                        contextRepo.Update(data);
-                        var oldHtml = contextDataRepo.QueryList("DeclareID=@DeclareID", new { DeclareID = data.Id }).FirstOrDefault();
-                        if (oldHtml != null && (string.IsNullOrEmpty(oldHtml.HtmlContext) || oldHtml.HtmlContext != data.HtmlContext))
-                        {
-                            oldHtml.HtmlContext = data.HtmlContext;
-                            contextDataRepo.Update(oldHtml);
-                        }
-                        context.UpdateContexts.Add(data);
-                    }
+                    context.UpdateContexts.Add(data);
                 }
             }
             return context;

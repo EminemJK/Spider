@@ -98,7 +98,6 @@
     <Compile Include="Common\Log.cs" />
     <Compile Include="Common\MD5.cs" />
     <Compile Include="DAL\DBOHelper.cs" />
-    <Compile Include="DAL\SqlMapperUtil.cs" />
     <Compile Include="Frame\mainForm.cs">
       <SubType>Form</SubType>
     </Compile>
